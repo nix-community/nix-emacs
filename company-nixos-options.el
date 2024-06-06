@@ -51,8 +51,8 @@
 
 (defun company-nixos--in-nix-context-p ()
   (or (eq major-mode 'nix-mode)
-      (equal "nix" (file-name-extension
-                    (buffer-file-name (current-buffer))))))
+      (and (buffer-file-name)
+	   (equal "nix" (file-name-extension (buffer-file-name))))))
 
 (defun company-nixos-options--prefix ()
   "Grab prefix at point."
