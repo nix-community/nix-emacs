@@ -36,17 +36,20 @@ e.g. /home/user/.nix-defexpr/channels/unstable/nixpkgs"
 
 (defun nix-create-sandbox-rc (sandbox)
   "Create a new rc file containing the environment for the given SANDBOX."
-  (let ((env-str (shell-command-to-string
-                  (if sandbox
+  (let* ((sandbox-nixpkgs-path
+          (if (file-remote-p sandbox)
+              "" ;; decide later
+            (or (and nix-nixpkgs-path (concat "-I nixpkgs=" nix-nixpkgs-path)) "")))
+         (command (if sandbox
                       (concat "nix-shell "
-                        (or (and nix-nixpkgs-path (concat "-I nixpkgs=" nix-nixpkgs-path))
-                         "")
-                         " --run 'declare +x shellHook; declare -x; declare -xf' "
-                         (shell-quote-argument sandbox)
-                         " 2> /dev/null")
+                              sandbox-nixpkgs-path
+                              " --run 'declare +x shellHook; declare -x; declare -xf' "
+                              (shell-quote-argument (file-local-name sandbox))
+                              " 2> /dev/null")
                     "bash -c 'declare +x shellHook; declare -x; declare -xf'"
-                    )))
-        (tmp-file (make-temp-file "nix-sandbox-rc-")))
+                    ))
+         (env-str (shell-command-to-string command))
+        (tmp-file (make-temp-file (concat (temporary-file-directory) "/nix-sandbox-rc-"))))
     (write-region env-str nil tmp-file 'append)
     tmp-file))
 
