@@ -99,7 +99,7 @@ e.g. /home/user/.nix-defexpr/channels/unstable/nixpkgs"
 (defun nix-executable-find (sandbox executable)
   "Search for an EXECUTABLE in the given SANDBOX."
   (let ((exec-path (nix-exec-path sandbox)))
-    (and exec-path (executable-find executable))))
+    (and exec-path (executable-find executable (file-remote-p sandbox)))))
 
 ;;;###autoload
 (defun nix-find-sandbox (path)
